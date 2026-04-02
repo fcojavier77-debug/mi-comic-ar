@@ -1,15 +1,40 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    
     <style>
-      #debug { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px; z-index: 9999; font-family: monospace; font-size: 12px; pointer-events: none; }
+      /* Forzamos que todo ocupe el 100% de la pantalla */
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      /* El canvas de la cámara debe ser absoluto y total */
+      a-scene {
+        width: 100vw;
+        height: 100vh;
+      }
+      #debug { 
+        position: fixed; 
+        top: 10px; 
+        left: 10px; 
+        background: rgba(0,0,0,0.7); 
+        color: white; 
+        padding: 8px; 
+        z-index: 9999; 
+        font-family: sans-serif; 
+        font-size: 11px; 
+        border-radius: 4px;
+      }
       .a-enter-vr { display: none !important; }
     </style>
+
     <script>
-      // Parche para que el WebP se mueva y no se quede congelado
       AFRAME.registerComponent('webp-fix', {
         tick: function () {
           const mesh = this.el.getObject3D('mesh');
@@ -20,21 +45,22 @@
       });
     </script>
   </head>
+  
   <body>
-    <div id="debug">Esperando cámara...</div>
+    <div id="debug">Iniciando Realidad Aumentada...</div>
 
     <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no;" 
-      embedded color-space="sRGB" 
-      renderer="colorManagement: true, physicallyCorrectLights" 
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no; filterMinCF:0.0001; filterBeta: 0.001;" 
       vr-mode-ui="enabled: false" 
-      device-orientation-permission-ui="enabled: false">
+      device-orientation-permission-ui="enabled: false"
+      color-space="sRGB" 
+      renderer="colorManagement: true, physicallyCorrectLights">
       
       <a-assets>
         <img id="webpAnim" src="animacion.webp" crossorigin="anonymous">
       </a-assets>
 
-      <a-camera look-controls="enabled: false"></a-camera>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity id="target" mindar-image-target="targetIndex: 0">
         <a-image src="#webpAnim" width="1" height="1" position="0 0 0" webp-fix></a-image>
@@ -45,19 +71,14 @@
       const target = document.querySelector("#target");
       const debug = document.querySelector("#debug");
 
-      // Control de estado visual
-      document.querySelector('a-scene').addEventListener("renderstart", () => {
-        debug.innerText = "Cámara activa. Apunta a la imagen.";
-      });
-
       target.addEventListener("targetFound", () => {
         debug.style.background = "green";
-        debug.innerText = "¡IMAGEN DETECTADA!";
+        debug.innerText = "¡DETECTADO!";
       });
 
       target.addEventListener("targetLost", () => {
         debug.style.background = "rgba(0,0,0,0.7)";
-        debug.innerText = "Imagen perdida. Enfoca el dibujo.";
+        debug.innerText = "Apunta a la viñeta";
       });
     </script>
   </body>
