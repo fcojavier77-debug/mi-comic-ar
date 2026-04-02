@@ -2,53 +2,46 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-aframe.prod.js"></script>
-    <style>
-      /* Botón para dar permiso al navegador */
-      #ui { position: fixed; z-index: 1000; bottom: 20px; left: 50%; transform: translateX(-50%); }
-      button { padding: 15px 25px; border-radius: 30px; border: none; background: #007bff; color: white; font-weight: bold; cursor: pointer; }
-    </style>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   </head>
   <body>
-    <div id="ui">
-      <button id="startButton">TOCA AQUÍ PARA ACTIVAR CÓMIC</button>
-    </div>
-
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-scene 
+      mindar-image="imageTargetSrc: ./targets.mind; filterMinCF:0.001; filterBeta: 0.01;" 
+      color-space="sRGB" 
+      renderer="colorManagement: true, physicallyCorrectLights" 
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: false">
+      
       <a-assets>
-        <video id="vid" src="./animacion.mp4" preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
+        <video id="vid" src="animacion.mp4" preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
       </a-assets>
 
-      <a-camera look-controls="enabled: false"></a-camera>
+      <a-camera look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"></a-camera>
 
-      <a-entity id="target0" mindar-image-target="targetIndex: 0">
-        <a-video src="#vid" width="1" height="1" position="0 0 0" rotation="0 0 0"></a-video>
+      <a-entity id="mytarget" mindar-image-target="targetIndex: 0">
+        <a-video id="video-obj" src="#vid" width="1" height="1" position="0 0 0"></a-video>
       </a-entity>
     </a-scene>
 
     <script>
-      const startButton = document.querySelector("#startButton");
-      const sceneEl = document.querySelector("a-scene");
       const video = document.querySelector("#vid");
-      const target0 = document.querySelector("#target0");
+      const target = document.querySelector("#mytarget");
 
-      // Al hacer clic, activamos la cámara y "despertamos" el vídeo
-      startButton.addEventListener('click', () => {
-        sceneEl.systems["mindar-image-system"].start();
-        video.play(); // Reproducción inicial para ganar el permiso
-        video.pause(); // Lo pausamos hasta que encuentre la imagen
-        startButton.style.display = "none";
+      // Forzamos la reproducción al detectar la imagen
+      target.addEventListener("targetFound", () => {
+        console.log("Imagen detectada");
+        video.play().catch(e => console.log("Error al reproducir:", e));
       });
 
-      // Eventos de detección
-      target0.addEventListener("targetFound", event => {
-        console.log("¡Imagen encontrada!");
-        video.play();
-      });
-
-      target0.addEventListener("targetLost", event => {
+      target.addEventListener("targetLost", () => {
         video.pause();
+      });
+
+      // TRUCO: Si tocas la pantalla, el vídeo intenta reproducirse (desbloqueo manual)
+      window.addEventListener("click", () => {
+        video.play();
+        console.log("Clic detectado, intentando reproducir vídeo...");
       });
     </script>
   </body>
