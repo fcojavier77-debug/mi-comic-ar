@@ -6,12 +6,12 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
       html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background: #000; }
-      #debug { position: fixed; top: 20px; left: 20px; background: rgba(0,0,0,0.8); color: white; padding: 10px; z-index: 9999; font-family: sans-serif; border-radius: 5px; pointer-events: none; font-size: 12px; }
+      #debug { position: fixed; top: 20px; left: 20px; background: rgba(0,0,0,0.8); color: white; padding: 10px; z-index: 9999; font-family: sans-serif; border-radius: 5px; pointer-events: none; font-size: 11px; }
       .a-enter-vr { display: none !important; }
     </style>
   </head>
   <body>
-    <div id="debug">1. Toca la pantalla <br> 2. Apunta al dibujo</div>
+    <div id="debug">Toca la pantalla para activar</div>
 
     <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no;" 
@@ -28,7 +28,7 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity id="target" mindar-image-target="targetIndex: 0">
-       <a-video src="#vid" position="0 0 0.1" width="1.5" height="1" scale="0.7 0.7 1"></a-video>
+        <a-video src="#vid" position="0 0 0.1" width="1.77" height="1" scale="0.6 0.6 1"></a-video>
       </a-entity>
     </a-scene>
 
@@ -39,9 +39,9 @@
 
       const forcePlay = () => {
         video.play().then(() => {
-          debug.innerText = "Vídeo en marcha. Apunta al dibujo.";
-        }).catch(err => {
-          debug.innerText = "Error: Toca la pantalla de nuevo";
+          debug.innerText = "Vídeo listo. Apunta al dibujo.";
+        }).catch(() => {
+          debug.innerText = "Toca de nuevo para activar";
         });
       };
 
