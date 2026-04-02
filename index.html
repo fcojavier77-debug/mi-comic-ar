@@ -3,44 +3,62 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-aframe.prod.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+      #debug { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px; z-index: 9999; font-family: monospace; font-size: 12px; pointer-events: none; }
+      .a-enter-vr { display: none !important; }
+    </style>
     <script>
-      // El parche debe registrarse ANTES de que empiece la escena
+      // Parche para que el WebP se mueva y no se quede congelado
       AFRAME.registerComponent('webp-fix', {
         tick: function () {
-          if (this.el.getObject3D('mesh')) {
-            const mesh = this.el.getObject3D('mesh');
-            if (mesh.material && mesh.material.map) {
-              mesh.material.map.needsUpdate = true;
-            }
+          const mesh = this.el.getObject3D('mesh');
+          if (mesh && mesh.material && mesh.material.map) {
+            mesh.material.map.needsUpdate = true;
           }
         }
       });
     </script>
-
-    <style>
-      body { margin: 0; overflow: hidden; }
-      .a-enter-vr { display: none !important; }
-    </style>
   </head>
-  
   <body>
+    <div id="debug">Esperando cámara...</div>
+
     <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no;" 
+      embedded color-space="sRGB" 
+      renderer="colorManagement: true, physicallyCorrectLights" 
       vr-mode-ui="enabled: false" 
-      device-orientation-permission-ui="enabled: false" 
-      embedded>
+      device-orientation-permission-ui="enabled: false">
       
       <a-assets>
-        <img id="comicAnimado" src="animacion.webp" crossorigin="anonymous">
+        <img id="webpAnim" src="animacion.webp" crossorigin="anonymous">
       </a-assets>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <a-camera look-controls="enabled: false"></a-camera>
 
-      <a-entity mindar-image-target="targetIndex: 0">
-        <a-image src="#comicAnimado" width="1" height="1" position="0 0 0" webp-fix></a-image>
+      <a-entity id="target" mindar-image-target="targetIndex: 0">
+        <a-image src="#webpAnim" width="1" height="1" position="0 0 0" webp-fix></a-image>
       </a-entity>
     </a-scene>
+
+    <script>
+      const target = document.querySelector("#target");
+      const debug = document.querySelector("#debug");
+
+      // Control de estado visual
+      document.querySelector('a-scene').addEventListener("renderstart", () => {
+        debug.innerText = "Cámara activa. Apunta a la imagen.";
+      });
+
+      target.addEventListener("targetFound", () => {
+        debug.style.background = "green";
+        debug.innerText = "¡IMAGEN DETECTADA!";
+      });
+
+      target.addEventListener("targetLost", () => {
+        debug.style.background = "rgba(0,0,0,0.7)";
+        debug.innerText = "Imagen perdida. Enfoca el dibujo.";
+      });
+    </script>
   </body>
 </html>
