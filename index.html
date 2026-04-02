@@ -1,35 +1,45 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
-      /* Forzamos que todo ocupe el 100% de la pantalla */
+      /* Reset total de estilos */
       html, body {
         margin: 0;
         padding: 0;
         width: 100%;
         height: 100%;
         overflow: hidden;
+        position: fixed; /* Evita rebotes en iOS */
+        background-color: black;
       }
-      /* El canvas de la cámara debe ser absoluto y total */
+
+      /* Forzamos a la escena y al video de fondo a ser gigantes */
       a-scene {
-        width: 100vw;
-        height: 100vh;
+        width: 100vw !important;
+        height: 100vh !important;
+        position: absolute;
+        top: 0;
+        left: 0;
       }
+
+      /* El lienzo de la cámara generado por MindAR */
+      .mindar-ui-overlay { z-index: 10; }
+      
       #debug { 
         position: fixed; 
-        top: 10px; 
-        left: 10px; 
-        background: rgba(0,0,0,0.7); 
+        top: 20px; 
+        left: 20px; 
+        background: rgba(0,0,0,0.8); 
         color: white; 
-        padding: 8px; 
+        padding: 10px; 
         z-index: 9999; 
         font-family: sans-serif; 
-        font-size: 11px; 
-        border-radius: 4px;
+        border-radius: 5px;
+        pointer-events: none;
       }
       .a-enter-vr { display: none !important; }
     </style>
@@ -47,14 +57,15 @@
   </head>
   
   <body>
-    <div id="debug">Iniciando Realidad Aumentada...</div>
+    <div id="debug">Buscando dibujo...</div>
 
     <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no; filterMinCF:0.0001; filterBeta: 0.001;" 
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no;" 
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false"
       color-space="sRGB" 
-      renderer="colorManagement: true, physicallyCorrectLights">
+      renderer="colorManagement: true, physicallyCorrectLights"
+      loading-screen="enabled: false">
       
       <a-assets>
         <img id="webpAnim" src="animacion.webp" crossorigin="anonymous">
@@ -63,7 +74,7 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity id="target" mindar-image-target="targetIndex: 0">
-        <a-image src="#webpAnim" width="1" height="1" position="0 0 0" webp-fix></a-image>
+        <a-image src="#webpAnim" position="0 0 0.1" scale="1.5 1.5 1" webp-fix></a-image>
       </a-entity>
     </a-scene>
 
@@ -77,8 +88,8 @@
       });
 
       target.addEventListener("targetLost", () => {
-        debug.style.background = "rgba(0,0,0,0.7)";
-        debug.innerText = "Apunta a la viñeta";
+        debug.style.background = "rgba(0,0,0,0.8)";
+        debug.innerText = "Enfoca la viñeta";
       });
     </script>
   </body>
