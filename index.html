@@ -2,33 +2,24 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
   </head>
   <body style="margin: 0; overflow: hidden;">
 
     <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       
       <a-assets>
-        <video id="v" src="animacion.mp4" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
+        <img id="fotoAnimada" src="animacion.webp" crossorigin="anonymous">
       </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-video src="#v" width="1" height="1" position="0 0 0"></a-video>
+        <a-image src="#fotoAnimada" width="1" height="1" position="0 0 0"></a-image>
       </a-entity>
 
     </a-scene>
 
-    <script>
-      // Este pequeño bloque es el ÚNICO secreto:
-      // Fuerza al vídeo a sonar/reproducirse en cuanto el usuario toca la pantalla una vez.
-      const video = document.querySelector("#v");
-      window.addEventListener("click", () => {
-          video.play();
-      });
-    </script>
-    
   </body>
 </html>
