@@ -6,50 +6,22 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
-      /* Reset total de estilos */
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        position: fixed; /* Evita rebotes en iOS */
-        background-color: black;
-      }
-
-      /* Forzamos a la escena y al video de fondo a ser gigantes */
-      a-scene {
-        width: 100vw !important;
-        height: 100vh !important;
-        position: absolute;
-        top: 0;
-        left: 0;
-      }
-
-      /* El lienzo de la cámara generado por MindAR */
-      .mindar-ui-overlay { z-index: 10; }
-      
-      #debug { 
-        position: fixed; 
-        top: 20px; 
-        left: 20px; 
-        background: rgba(0,0,0,0.8); 
-        color: white; 
-        padding: 10px; 
-        z-index: 9999; 
-        font-family: sans-serif; 
-        border-radius: 5px;
-        pointer-events: none;
-      }
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background-color: black; }
+      #debug { position: fixed; top: 20px; left: 20px; background: rgba(0,0,0,0.8); color: white; padding: 10px; z-index: 9999; font-family: sans-serif; border-radius: 5px; pointer-events: none; }
       .a-enter-vr { display: none !important; }
     </style>
 
     <script>
-      AFRAME.registerComponent('webp-fix', {
-        tick: function () {
+      // Este componente obliga al WebP a moverse "despertando" a la GPU
+      AFRAME.registerComponent('descongelar', {
+        tick: function (time, timeDelta) {
           const mesh = this.el.getObject3D('mesh');
           if (mesh && mesh.material && mesh.material.map) {
+            // Truco 1: Forzar actualización de mapa
             mesh.material.map.needsUpdate = true;
+            // Truco 2: Micro-movimiento invisible para forzar el renderizado
+            const scale = 1 + Math.sin(time / 1000) * 0.001;
+            this.el.setAttribute('scale', {x: scale, y: scale, z: 1});
           }
         }
       });
@@ -64,8 +36,7 @@
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false"
       color-space="sRGB" 
-      renderer="colorManagement: true, physicallyCorrectLights"
-      loading-screen="enabled: false">
+      renderer="colorManagement: true, physicallyCorrectLights">
       
       <a-assets>
         <img id="webpAnim" src="animacion.webp" crossorigin="anonymous">
@@ -74,7 +45,7 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity id="target" mindar-image-target="targetIndex: 0">
-        <a-image src="#webpAnim" position="0 0 0.1" scale="1.5 1.5 1" webp-fix></a-image>
+        <a-image src="#webpAnim" position="0 0 0.1" width="1.2" height="1.2" descongelar></a-image>
       </a-entity>
     </a-scene>
 
@@ -84,7 +55,7 @@
 
       target.addEventListener("targetFound", () => {
         debug.style.background = "green";
-        debug.innerText = "¡DETECTADO!";
+        debug.innerText = "¡DETECTADO! Moviendo...";
       });
 
       target.addEventListener("targetLost", () => {
