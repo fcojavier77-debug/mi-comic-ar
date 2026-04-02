@@ -4,21 +4,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-aframe.prod.js"></script>
-    
     <style>
       body { margin: 0; overflow: hidden; }
-      /* Ocultamos cualquier icono de VR que pueda aparecer */
-      .a-enter-vr, .a-enter-ar { display: none !important; }
+      .a-enter-vr { display: none !important; }
     </style>
   </head>
-  
   <body>
     <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no;" 
       vr-mode-ui="enabled: false" 
-      device-orientation-permission-ui="enabled: false"
-      color-space="sRGB"
-      renderer="colorManagement: true, physicallyCorrectLights"
+      device-orientation-permission-ui="enabled: false" 
       embedded>
       
       <a-assets>
@@ -28,9 +23,22 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-image src="#comicAnimado" width="1" height="1" position="0 0 0"></a-image>
+        <a-image id="render" src="#comicAnimado" width="1" height="1" position="0 0 0" webp-fix></a-image>
       </a-entity>
-      
     </a-scene>
+
+    <script>
+      // Este componente "descongela" texturas que el navegador intenta pausar
+      AFRAME.registerComponent('webp-fix', {
+        tick: function () {
+          // Buscamos el material de la imagen
+          var mesh = this.el.getObject3D('mesh');
+          if (mesh && mesh.material && mesh.material.map) {
+            // Forzamos al motor a leer el siguiente frame del WebP
+            mesh.material.map.needsUpdate = true;
+          }
+        }
+      });
+    </script>
   </body>
 </html>
