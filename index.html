@@ -6,8 +6,7 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
       body { margin: 0; overflow: hidden; }
-      /* Bloqueamos cualquier icono de VR que ensucie la pantalla */
-      .a-enter-vr, .a-enter-ar { display: none !important; }
+      .a-enter-vr { display: none; }
     </style>
   </head>
   <body>
@@ -15,48 +14,37 @@
       mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no;" 
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false"
-      color-space="sRGB"
-      renderer="colorManagement: true, physicallyCorrectLights"
       embedded>
       
       <a-assets>
-        <video id="videoAsset" src="animacion.mp4" 
-               preload="auto" loop="true" muted 
-               playsinline webkit-playsinline 
-               crossorigin="anonymous"></video>
+        <video id="peli" src="animacion.mp4" preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
       </a-assets>
 
-      <a-camera look-controls="enabled: false" position="0 0 0"></a-camera>
+      <a-camera look-controls="enabled: false"></a-camera>
 
-      <a-entity id="target0" mindar-image-target="targetIndex: 0">
-        <a-video id="videoPlane" src="#videoAsset" width="1" height="1" position="0 0 0" rotation="0 0 0"></a-video>
+      <a-entity id="disparador" mindar-image-target="targetIndex: 0">
+        <a-video src="#peli" width="1" height="1" position="0 0 0"></a-video>
       </a-entity>
     </a-scene>
 
     <script>
-      const v = document.querySelector("#videoAsset");
-      const t = document.querySelector("#target0");
+      const video = document.getElementById('peli');
+      const target = document.getElementById('disparador');
 
-      // Función para intentar reproducir
-      const startVideo = () => {
-        v.play().catch(err => console.log("Esperando interacción..."));
-      };
-
-      // Cuando el motor AR encuentra tu dibujo
-      t.addEventListener("targetFound", () => {
-        console.log("Imagen detectada en el cómic");
-        startVideo();
+      // ORDEN DIRECTA: En cuanto detecte, PLAY.
+      target.addEventListener("targetFound", () => {
+        video.play();
       });
 
-      // Cuando dejas de apuntar al dibujo
-      t.addEventListener("targetLost", () => {
-        v.pause();
+      target.addEventListener("targetLost", () => {
+        video.pause();
       });
 
-      // IMPORTANTE: Al tocar la pantalla en cualquier momento, 
-      // el navegador nos da permiso para que el vídeo funcione.
-      window.addEventListener("click", startVideo);
-      window.addEventListener("touchstart", startVideo);
+      // DESBLOQUEO OBLIGATORIO: Toca la pantalla una vez al cargar la cámara
+      window.addEventListener("click", () => {
+        video.play();
+        video.pause();
+      });
     </script>
   </body>
 </html>
