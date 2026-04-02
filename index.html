@@ -7,41 +7,41 @@
   </head>
   <body>
     <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; filterMinCF:0.001; filterBeta: 0.01;" 
+      mindar-image="imageTargetSrc: https://fcojavier77-debug.github.io/mi-comic-ar/targets.mind; autoStart: true; uiLoading: yes; uiScanning: yes;" 
       color-space="sRGB" 
       renderer="colorManagement: true, physicallyCorrectLights" 
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false">
       
       <a-assets>
-        <video id="vid" src="animacion.mp4" preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
+        <video id="vid" src="https://fcojavier77-debug.github.io/mi-comic-ar/animacion.mp4" 
+               preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
       </a-assets>
 
       <a-camera look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"></a-camera>
 
-      <a-entity id="mytarget" mindar-image-target="targetIndex: 0">
-        <a-video id="video-obj" src="#vid" width="1" height="1" position="0 0 0"></a-video>
+      <a-entity id="target" mindar-image-target="targetIndex: 0">
+        <a-video src="#vid" width="1.5" height="1" position="0 0 0"></a-video>
       </a-entity>
     </a-scene>
 
     <script>
+      // Forzamos el arranque del vídeo al tocar cualquier parte de la pantalla
       const video = document.querySelector("#vid");
-      const target = document.querySelector("#mytarget");
+      const target = document.querySelector("#target");
 
-      // Forzamos la reproducción al detectar la imagen
+      window.addEventListener("click", () => {
+        video.play();
+        console.log("Vídeo activado manualmente");
+      });
+
       target.addEventListener("targetFound", () => {
-        console.log("Imagen detectada");
-        video.play().catch(e => console.log("Error al reproducir:", e));
+        video.play();
+        console.log("¡Imagen detectada!");
       });
 
       target.addEventListener("targetLost", () => {
         video.pause();
-      });
-
-      // TRUCO: Si tocas la pantalla, el vídeo intenta reproducirse (desbloqueo manual)
-      window.addEventListener("click", () => {
-        video.play();
-        console.log("Clic detectado, intentando reproducir vídeo...");
       });
     </script>
   </body>
