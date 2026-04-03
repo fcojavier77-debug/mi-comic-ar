@@ -6,13 +6,11 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
       html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background: #000; }
-      #debug { position: fixed; top: 20px; left: 20px; background: rgba(0,0,0,0.8); color: white; padding: 10px; z-index: 9999; font-family: sans-serif; border-radius: 5px; pointer-events: none; font-size: 11px; }
+      /* Hemos eliminado los estilos del #debug ya que no lo usaremos */
       .a-enter-vr { display: none !important; }
     </style>
   </head>
   <body>
-    <div id="debug">Toca la pantalla para activar</div>
-
     <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no;" 
       vr-mode-ui="enabled: false" 
@@ -24,41 +22,34 @@
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-     <a-entity id="target" mindar-image-target="targetIndex: 0">
-  <a-plane 
-    material="src: #vid; shader: flat; repeat: 1 0.75; offset: 0 0.12" 
-    position="0 0 0" 
-    width="1.8" 
-    height="1.0" 
-    scale="0.6 0.6 1">
-  </a-plane>
-</a-entity>
+      <a-entity id="target" mindar-image-target="targetIndex: 0">
+        <a-plane 
+          material="src: #vid; shader: flat; repeat: 1 0.75; offset: 0 0.12" 
+          position="-0.1 0 0.1" 
+          width="1.8" 
+          height="1.0" 
+          scale="0.6 0.6 1">
+        </a-plane>
+      </a-entity>
+    </a-scene>
 
     <script>
       const video = document.querySelector("#vid");
       const target = document.querySelector("#target");
-      const debug = document.querySelector("#debug");
 
+      // Función invisible para activar el video al tocar cualquier parte
       const forcePlay = () => {
-        video.play().then(() => {
-          debug.innerText = "Vídeo en marcha. Apunta al dibujo.";
-        }).catch(() => {});
+        video.play().catch(() => {
+            // Silenciamos errores si el video aún no está listo
+        });
       };
 
-      // Activar video con toque en pantalla
       window.addEventListener("click", forcePlay);
       window.addEventListener("touchstart", forcePlay);
 
-      // Eventos de detección
+      // El video se dispara solo al encontrar el dibujo, sin avisos en pantalla
       target.addEventListener("targetFound", () => {
-        debug.style.background = "green";
-        debug.innerText = "¡DETECTADO!";
         forcePlay(); 
-      });
-
-      target.addEventListener("targetLost", () => {
-        debug.style.background = "rgba(0,0,0,0.8)";
-        debug.innerText = "Enfoca la viñeta";
       });
     </script>
   </body>
